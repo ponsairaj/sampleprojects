@@ -1,0 +1,109 @@
+/* General Information Card Styling */
+.general-info {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .general-info h2 {
+    font-weight: bold;
+  }
+  
+  .general-info p,
+  .general-info ul {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Link Boxes Styling */
+  .link-box {
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+  
+  .link-box a {
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* Header and Footer Styling */
+  header {
+    background-color: #007bff;
+  }
+  
+  .footer {
+    background-color: #007bff;
+    color: #f8f9fa;
+  }
+  
+  .footer p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+/* HomePage.css */
+
+/* General Styles */
+.App {
+    font-family: Arial, sans-serif;
+    color: black;
+  }
+  
+  /* Header Styles */
+  .header {
+    background-color: #007bff; /* Primary color: blue */
+    color: white;
+    padding: 20px 0;
+  }
+  
+  .header h1,
+  .header p {
+    margin: 0;
+  }
+  
+  /* General Information Card */
+  .general-info {
+    border: 1px solid #007bff;
+    background-color: white; /* Secondary color: white */
+    color: black;
+  }
+  
+  .general-info .card-header {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  /* Link Box Styling */
+  .link-box {
+    background-color: #007bff; /* Primary color: blue */
+    color: white;
+    transition: background-color 0.3s;
+  }
+  
+  .link-box:hover {
+    background-color: #0056b3; /* Darker shade of blue on hover */
+  }
+  
+  .link-text {
+    text-decoration: none;
+    color: black; /* Text color in black */
+  }
+  
+  .link-text:hover {
+    color: white; /* White text on hover for better visibility */
+  }
+  
+  /* Footer Styles */
+  .footer {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  /* Responsive Margins */
+  .mt-4 {
+    margin-top: 1.5rem;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1.5rem;
+  }
+    
