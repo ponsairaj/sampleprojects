@@ -32,7 +32,7 @@ const ContactSection = styled.section`
 
     input,
     textarea {
-      width: 100%;
+      width: 95%;
       padding: 0.8rem;
       margin-bottom: 1rem;
       border: 1px solid #333;
@@ -55,6 +55,7 @@ const ContactSection = styled.section`
       cursor: pointer;
       border-radius: 4px;
       font-size: 1rem;
+      margin-left:40%;
 
       &:hover {
         background: #d1344d;

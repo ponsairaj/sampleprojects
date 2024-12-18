@@ -1,7 +1,6 @@
 // src/pages/Projects.js
 import React from "react";
 import styled from "styled-components";
-import portfolio from "../assets/portfolio.png";
 
 const ProjectsSection = styled.section`
   padding: 2rem 5%;
@@ -79,22 +78,22 @@ const Projects = () => {
       title: "Todo List",
       description:
         "A simple React-based to-do list application to add, edit, and delete tasks.",
-      link: "https://github.com/ponsairaj/todo-list", // Replace with your GitHub or demo link
-      img: "https://via.placeholder.com/300x180", // Replace with actual image if available
+      link: "https://github.com/ponsairaj/sampleprojects/tree/main/todoplanner", 
+      img: "https://via.placeholder.com/TODO-LISTS", 
     },
     {
       title: "OpenTicket",
       description:
         "A ticket management system where users can raise tickets, employees handle them, and admins manage the platform.",
-      link: "https://github.com/ponsairaj/openticket", // Replace with your GitHub or demo link
-      img: "https://via.placeholder.com/300x180", // Replace with actual image if available
+      link: "https://github.com/ponsairaj/sampleprojects/tree/main/Openticket",
+      img: "https://via.placeholder.com/OPENTICKET", 
     },
     {
       title: "Portfolio Website",
       description:
         "A personal portfolio website showcasing my skills, projects, and experience.",
-      link: "https://github.com/ponsairaj/portfolio", // Replace with your GitHub or live demo link
-      img: {portfolio}, // Replace with actual image if available
+      link: "https://github.com/ponsairaj/sampleprojects/tree/main/portfolio", 
+      img: "https://via.placeholder.com/PORTFOLIO", 
     },
   ];
 
