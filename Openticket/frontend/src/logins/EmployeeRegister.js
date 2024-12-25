@@ -1,146 +1,220 @@
-import React, { useState } from "react";
+import React,{useState,useEffect} from "react";
+import axios from "axios";
+import { useNavigate} from "react-router-dom";
+import logo from "../images/lodgo.png";
+export default function Employeereg(){
 
-export default function Employeereg() {
-  const [employee, setEmployee] = useState({
-    id: '',
-    name: '',
-    department: '',
-    email: '',
-    password: '',
-    confirmpassword: ''
-  });
-
-  const [error, setError] = useState({
-    employeeid: '',
-    employeename: '',
-    department: '',
-    email: '',
-    password: '',
-    confirmpassword: ''
-  });
-
+  const [employeedata,setEmployee] = useState({id:'',name:'',email:'',department:'',password:'',confirmpassword:''});
+  const[error,setError] = useState({head:'', id:'',name:'',email:'',department:'',password:'',confirmpassword:''});
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/;
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
+  const navigate = useNavigate();
+  const loggedinuser = localStorage.getItem('LoggedinUser');
+  const loggedinadmin = localStorage.getItem('LoggedinAdmin');
+  const loggedinemployee = localStorage.getItem('LoggedinEmployee');
+  const idcreator = Math.floor(Math.random()*9000+10000);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setEmployee((prevEmployee) => ({
-      ...prevEmployee,
-      [name]: value
-    }));
-    validateField(name, value);
-  };
-
-  const validateField = (name, value) => {
-    const newErrors = { ...error };
-    switch (name) {
-      case 'id':
-        newErrors.employeeid = value ? '' : 'Enter the ID of the employee!';
-        break;
-      case 'name':
-        newErrors.employeename = value ? '' : 'Enter the employee name!';
-        break;
-      case 'department':
-        newErrors.department = value && value !== 'Select Department' ? '' : 'Select the department!';
-        break;
-      case 'email':
-        newErrors.email = value
-          ? emailRegex.test(value) ? '' : 'Enter a valid email!'
-          : 'Enter the email!';
-        break;
-      case 'password':
-        newErrors.password = value
-          ? passwordRegex.test(value) ? '' : 'Password must contain uppercase, lowercase, special character, and a number!'
-          : 'Enter the password!';
-        break;
-      case 'confirmpassword':
-        newErrors.confirmpassword = value
-          ? value === employee.password ? '' : 'Passwords do not match!'
-          : 'Confirm password cannot be empty!';
-        break;
-      default:
-        break;
+  useEffect(() => {
+    if (loggedinadmin) {
+      navigate('/admin')
+    } else if (loggedinemployee) {
+      navigate('/employee')
+    } else if (loggedinuser) {
+      navigate('/user')
     }
-    setError(newErrors);
-  };
+  });
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (isValidForm()) {
-      console.log("Form submitted successfully", employee);
-    }
+  const handleChange =(event)=>{
+    const {name,value} = event.target;
+    setEmployee({...employeedata,id:idcreator,[name]:value});
+    Validate(name,value);
   };
-
-  const isValidForm = () => {
-    const requiredFields = ['id', 'name', 'department', 'email', 'password', 'confirmpassword'];
-    let isValid = true;
-    const newErrors = { ...error };
-    requiredFields.forEach((field) => {
-      if (!employee[field]) {
-        newErrors[field] = 'This field is required';
-        isValid = false;
+  
+  const Validate = (name,value)=>{
+    const errors = {head:'', id:'',name:'',email:'',department:'',password:'',confirmpassword:''};
+      switch (name) {
+  
+        case 'name':
+          if (value === '') {
+            errors.name = 'Name cannot be empty';
+          } else {
+            errors.name = '';
+          }
+          break;
+  
+        case 'email':
+          if (value === '') {
+            errors.email = 'Email cannot be empty';
+          } else if (!emailRegex.test(value)) {
+            errors.email = 'Enter a valid email';
+          } else{
+            errors.email = '';
+          }
+          break;
+        
+        case 'department':
+          if (value === '' || value === 'Select the department') {
+            errors.department = 'Select the department';
+          } else {
+            errors.department = '';
+          }
+          break;
+        
+        case 'password':
+          if (value === '') {
+            errors.password = 'Password cannot be empty';
+          } else  if (!passwordRegex.test(value)){
+            errors.password = 'A password must contain uppercase,lowercase,special character and a number';
+          } else{
+            errors.password = '';
+          }
+          break;
+          
+        case 'confirmpassword':
+          if (value === '') {
+            errors.confirmpassword = 'Confirmpassword cannot be empty'; 
+          } else if(value !== employeedata.password){
+            errors.confirmpassword = 'Password does not match';
+          } else {
+            errors.confirmpassword = '';
+          }
+          break;
+  
+          default:
+          break;
       }
-    });
-    setError(newErrors);
-    return isValid;
+      setError(errors);
+  };
+  
+  const handleSubmit =(event)=>{
+    event.preventDefault();
+    if (Validation()) {
+      axios.post('http://localhost:7000/employeeregistery', employeedata)
+        .then(response => {
+          console.log(employeedata);
+          setEmployee({id:'',name:'',email:'',department:'',password:'',confirmpassword:''}); 
+          alert('Registered Successfully');
+          navigate('/');
+        })
+        .catch(error => {
+          console.error(error);
+          setError({ head: 'Registration failed. Please try again.' });
+        }); 
+      }
+  };
+    
+  const Validation = ()=>{
+    var isValid = true;
+    const Error = {head:'', id:'',name:'',email:'',department:'',password:'',confirmpassword:''};
+      
+    if (employeedata.name === '') {
+      Error.name = 'Name cannot be empty';
+      isValid = false;
+    } else {
+      Error.name = '';
+      isValid = true;
+    };
+    if (employeedata.email === '') {
+      Error.email = 'Email cannot be empty';
+      isValid = false;
+    } else if (!emailRegex.test(employeedata.email)) {
+      Error.email = 'Enter a valid email';
+      isValid = false;
+    } else {
+      Error.email = '';
+      isValid = true;
+    };
+    if (employeedata.department === '' || employeedata.department === 'Select the department') {
+      Error.department = 'Select the department';
+      isValid = false;
+    } else {
+      Error.department = '';
+      isValid = true;
+    }
+    if (employeedata.password === '') {
+      Error.password = 'Password cannot be empty';
+      isValid = false;
+    } else if(!passwordRegex.test(employeedata.password)) {
+      Error.password = 'A password must contain uppercase,lowercase,special character and a number';
+      isValid = false;
+    } else {
+      Error.password = '';
+      isValid = true;
+    };
+    if (employeedata.confirmpassword === '') {
+      Error.confirmpassword = 'Confirmpassword cannot be empty';
+      isValid =false;
+    } else if(employeedata.confirmpassword !== employeedata.password) {
+      Error.confirmpassword = 'Password does not match';
+      isValid = false;
+    } else {
+      Error.confirmpassword = '';
+      isValid = true;
+    }
+      setError(Error);
+      return isValid;  
   };
 
-  return (
-    <div className="App">
-      <header className="container-fluid nv pb-2 header">
-        <h1 className="row justify-content-center">Employee Registration</h1>
-        <h4 className="row justify-content-center">Only Registered persons can Login!</h4>
-      </header>
-      <div className="container vh-100">
-        <div className="container mt-4">
-          <form className="form-control m-4" onSubmit={handleSubmit}>
-            <h2>Employee Registration:</h2>
-            <div className="row">
-              <div className="p-4 col-6">
-                <label className="form-label">Employee ID:</label>
-                <input type="number" name="id" className="form-control" onChange={handleChange} />
-                <p className="text-danger">{error.employeeid}</p>
-              </div>
-              <div className="col-6 p-4">
-                <label className="form-label">Employee Name:</label>
-                <input name="name" type="text" className="form-control" onChange={handleChange} />
-                <p className="text-danger">{error.employeename}</p>
-              </div>
-              <div className="col-6 p-4">
-                <label className="form-label">Department:</label>
-                <select name="department" className="form-control" onChange={handleChange}>
-                  <option>Select Department</option>
-                  <option>Department-1</option>
-                  <option>Department-2</option>
-                  <option>Department-3</option>
-                </select>
-                <p className="text-danger">{error.department}</p>
-              </div>
-              <div className="col-6 p-4">
-                <label className="form-label">Email:</label>
-                <input type="text" name="email" className="form-control" onChange={handleChange} />
-                <p className="text-danger">{error.email}</p>
-              </div>
-              <div className="p-4 col-6">
-                <label className="form-label">Password:</label>
-                <input type="password" name="password" className="form-control" onChange={handleChange} />
-                <p className="text-danger">{error.password}</p>
-              </div>
-              <div className="p-4 col-6">
-                <label className="form-label">Confirm Password:</label>
-                <input type="password" name="confirmpassword" className="form-control" onChange={handleChange} />
-                <p className="text-danger">{error.confirmpassword}</p>
-              </div>
-              <div className="container col-6 text-center mt-5 p-2">
-                <button type="submit" className="btn btn-success btn-md">Register</button>
+  const Home =()=>{
+    navigate('/');
+  };
+  
+  return(
+      <div className="App text-light">
+        <div className="container-fluid py-3 bg-dark text-light">
+          <div className="row">
+            <span className="col">
+              <img src={logo} height={50} width={50} className="rounded " alt="Logo" onClick={Home}/>
+            </span>
+            <h2 className="col-7 text-start">OPEN TICKETS</h2>
+          </div>
+        </div>
+          <div className="container ">
+            <div className=" mt-4 row align-items-center">
+              <div className="container col-6">
+              <form className="form-control border border-4 border-info my-3 bg-light" onSubmit={handleSubmit}>
+                <h5>EMPLOYEE REGISTER:</h5>
+                  <p className="text-danger">{error.head}</p>
+                  <div className="col ">
+                    <label className="form-label">Employee Name:</label> 
+                    <input name="name" type="name" className="form-control border border-info" onChange={handleChange}/>
+                    <p className="text-danger">{error.name}</p>
+                  </div>
+                  <div className="col">
+                    <label className="form-label">Email:</label>
+                    <input type="text" name="email" className="form-control border border-info" onChange={handleChange}/>
+                    <p className="text-danger">{error.email}</p>
+                  </div>
+                  <div className="col">
+                    <label className="form-label">Department:</label>
+                    <select name="department" className="form-control border border-info" onChange={handleChange}>
+                      <option>Select a department</option>
+                      <option>Department - 1</option>
+                      <option>Department - 2</option>
+                      <option>Department - 3</option>
+                    </select>
+                    <p className="text-danger">{error.department}</p>
+                  </div>
+                  <div className=" col">
+                    <label className="form-label">Password:</label>
+                    <input type="password" name="password" className="form-control border border-info" onChange={handleChange}/>
+                    <p className="text-danger">{error.password}</p>
+                  </div>
+                  <div className=" col">
+                    <label className="form-label">Confirm Password:</label>
+                    <input type="password" name="confirmpassword" className="form-control border border-info" onChange={handleChange}/>
+                    <p className="text-danger">{error.confirmpassword}</p>
+                  </div>
+                  <div className="container col-6 text-center ">
+                    <button className="btn btn-info btn-md" type="submit">Register</button>
+                  </div>
+              </form>
               </div>
             </div>
-          </form>
-        </div>
+          </div>
+          <div className="p-4 container-fluid bg-dark text-light">
+            <p className="text-center">@2024 creater</p>
+          </div>
       </div>
-      <footer className="nv container-fluid p-3">
-        <h3 className="row justify-content-center">End of the page!!</h3>
-      </footer>
-    </div>
-  );
+    );
 }

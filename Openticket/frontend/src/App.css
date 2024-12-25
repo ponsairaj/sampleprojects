@@ -1,4 +1,18 @@
 .App{
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.footer{
+  position:absolute;
+  left:0;
+  bottom:0;
+  right:0;
+}
+.margintop{
+  padding-top: 5%;
+}
+
+.margin-bottom{
+margin-bottom: 0%;
 }
 

@@ -1,14 +1,16 @@
 import './App.css';
 import React from "react";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import UserHome from './user/userHome';
 import Routing from './logins/main';
 import Logins from './logins/login';
 import Userreg from './logins/UserRegister';
 import Employeereg from './logins/EmployeeRegister';
-import Adminreg from './logins/AdminRegister';
-import EmployeeHome from './user/EmployeeHome';
-import AdminHome from './user/AdminHome';
+import EmployeeHome from './Home/employeeHome';
+import AdminHome from './Home/adminHome';
+import UserHome from './Home/userHome';
+import Admintickets from './Home/Admin/tickets';
+import Adminregisters from './Home/Admin/registerlist';
+import Security from './Home/Admin/Security';
 function App() {
   return(
     <div>
@@ -16,12 +18,15 @@ function App() {
       <Routes>
         <Route path='/' element ={<Routing />} />
         <Route path='/login' element ={<Logins />}/>
-        <Route path='/UserRegistration' element = {<Userreg />}/>
-        <Route path='/EmployeeRegistration' element = {<Employeereg />}/>
-        <Route path='/AdministratorRegistration' element = {<Adminreg />}/>
+        <Route path='/UserRegister' element = {<Userreg />}/>
+        <Route path='/EmployeeRegister' element = {<Employeereg />}/>
         <Route path='/User' element ={<UserHome />} />
         <Route path='/Employee' element = {<EmployeeHome />} />
-        <Route path='/Admin' element ={<AdminHome />} />
+        <Route element = {<Security />}>
+          <Route path='/Admin' element = {<AdminHome />} />
+          <Route path='/Admintickets' element = {<Admintickets />}/>
+          <Route path='/Adminregisters' element = {<Adminregisters />}/>
+        </Route>
       </Routes>
       </BrowserRouter>
     </div>
