@@ -1,88 +1,87 @@
-import React,{useState,useEffect} from "react";
+// Refactored registerlist.js
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import logo from "../../images/lodgo.png";
 
-export default function Adminregisters(){
+function Header({ onAdminHome }) {
+  return (
+    <header className="container-fluid bg-dark text-light pb-2">
+      <div className="d-flex justify-content-between align-items-center">
+        <h6>Welcome to the Mytickets page of Admin!</h6>
+        <button className="btn btn-sm btn-info" onClick={onAdminHome}>Admin Home</button>
+      </div>
+    </header>
+  );
+}
+
+function RegisterTable({ registers, onRemove }) {
+  return (
+    <table className="table table-light border border-4 border-info text-center mt-3">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Role</th>
+          <th>Options</th>
+        </tr>
+      </thead>
+      <tbody>
+        {registers.map(({ id, name, email, department, role }) => (
+          <tr key={id} className="border border-info">
+            <td>{id}</td>
+            <td>{name}</td>
+            <td>{email}</td>
+            <td>{department}</td>
+            <td>{role}</td>
+            <td>
+              <button className="btn btn-sm btn-danger" onClick={() => onRemove(id)}>Remove</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export default function AdminRegisters() {
   const navigate = useNavigate();
   const [registers, setRegisters] = useState([]);
-  const AdminHome =()=>{
-    navigate('/Admin')
-  };
+
+  const fetchRegisters = useCallback(() => {
+    axios.get("http://localhost:7000/registers")
+      .then(({ data }) => setRegisters(data))
+      .catch(console.error);
+  }, []);
+
+  const handleRemove = useCallback((id) => {
+    axios.post("http://localhost:7000/deleteregister", { id })
+      .then(() => setRegisters((prev) => prev.filter((reg) => reg.id !== id)))
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
-    axios.get('http://localhost:7000/registers')
-      .then(response=>{
-        setRegisters(response.data);
-      })
-      .catch(error=>{
-        console.error(error);
-      })
-  }, [])
-  
-  const Remove =(id)=>{
-    axios.post('http://localhost:7000/deleteregister',{id})
-      .then(response=>{
-        console.log(response);
-      })
-      .catch(error=>{
-        console.error(error);
-      })
-      setRegisters(registers.filter(register=>register.id !== id));
-   };
+    fetchRegisters();
+  }, [fetchRegisters]);
 
-  return(
+  return (
     <div className="App">
       <div className="container-fluid py-3 bg-dark text-light">
-        <div className="row">
-          <div className="col">
-            <span>
-              <img src={logo} height={50} width={50} className="rounded " alt="Logo"/>
-            </span>
-          </div>
-          <h2 className="col-7 text-start">OPEN TICKETS</h2>
+        <div className="d-flex align-items-center">
+          <img src={logo} alt="Logo" height={50} width={50} className="rounded" />
+          <h2 className="ms-3">OPEN TICKETS</h2>
         </div>
       </div>
-      <header className ="container-fluid bg-dark text-light pb-2 header">
-        <h6 className="row justify-content-center" >Welcome to the Mytickets page of Admin!</h6>
-        <div className="text-end">
-          <button className="btn btn-sm btn-info ms-1" type="button" onClick={AdminHome}>Admin home</button>
-        </div> 
-      </header>
-        <div className="container">
+      <Header onAdminHome={() => navigate("/Admin")} />
+      <div className="container">
         <h5 className="text-center py-2">Registers</h5>
-              <table className="table table-light border border-4 border-info text-center mt-3">
-                <thead className="text-center">
-                  <tr> 
-                    <th scope="col">ID</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Department</th>
-                    <th scope="col">Password</th>
-                    <th scope="col">Role</th>
-                    <th scope="col">Options</th>
-                  </tr>
-                </thead>
-                <tbody>  
-                  {registers.map(item=>
-                    <tr className="border border-info" key={item.id}>
-                      <th>{item.id}</th>
-                      <td>{item.name}</td>
-                      <td>{item.email}</td>
-                      <td>{item.department}</td>
-                      <td>{item.password}</td>
-                      <td>{item.role}</td>
-                      <td>
-                        <button className="btn btn-sm btn-danger m-1" onClick={()=>Remove(item.id)}>Remove</button>
-                      </td>
-                    </tr>
-                  )} 
-                </tbody>                    
-              </table>
-            </div>
-      <div className="p-4 mt-5 container-fluid footer bg-dark text-light">
-        <p className="text-center">@2024 creater</p>
+        <RegisterTable registers={registers} onRemove={handleRemove} />
       </div>
+      <footer className="p-4 mt-5 container-fluid bg-dark text-light">
+        <p className="text-center">@2024 Creator</p>
+      </footer>
     </div>
-  )
+  );
 }

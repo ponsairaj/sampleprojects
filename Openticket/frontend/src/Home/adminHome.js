@@ -1,238 +1,251 @@
-import React, { useState,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import adminpic from "../images/admins.jfif";
 import logo from "../images/lodgo.png";
 import axios from "axios";
-export default function EmployeeHome(){
-  const [admins,setAdmins]= useState({id:null,name:'',email:'',department:'',password:'',role:''});
-  const [error, setError] = useState({head:'',name:'',email:''});
+
+export default function EmployeeHome() {
+  const [admin, setAdmin] = useState({ id: null, name: "", email: "", department: "", password: "", role: "" });
+  const [error, setError] = useState({ name: "", email: "" });
   const [tickets, setTickets] = useState([]);
-  const [mytickets,setMytickets] = useState([]);
+  const [myTickets, setMyTickets] = useState([]);
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
   const navigate = useNavigate();
-  
-  useEffect(() => {
-    axios.get('http://localhost:7000/Tickets')
-    .then(response=>{
-      setTickets(response.data)
-      setMytickets(tickets.filter(item=>item.status === "Moved to Admin"));
-    })
-    .catch(error=>{
-      console.error(error);
-    })
-  }, [admins]);
 
   useEffect(() => {
-    axios.get('http://localhost:7000/admin')
-    .then(response=>{
-      setAdmins(response.data[0])
-    })
-    .catch(error=>{
-      console.error(error);
-    })
-  }, [])
-  
-
-  const Logout =()=>{
-    alert('Logging out !');
-    localStorage.removeItem('LoggedinAdmin');
-    navigate('/')
-  };
-
-  const profilechange = (event) =>{
-      const {name,value} = event.target;
-      setAdmins({...admins,[name]:value});
-      Validate(name,value);
-  };
-
-  const Validate =(name,value)=>{
-    const errors ={head:'',name:'',email:''};
-    switch (name) {
-      case 'name':
-        if (value === '') {
-          errors.name = 'Enter the name!';          
-        } else {
-          errors.name = '';
-        }
-        break;
-      case 'email':
-        if (value === '') {
-          errors.email = 'Enter the email';
-        } else if (!emailRegex.test(value)){
-          errors.email = 'Enter the proper email';
-        } else {
-          errors.email = '';
-        }
-        break;       
-      default:
-        break;
+    const fetchTickets = async () => {
+      try {
+        const response = await axios.get("http://localhost:7000/Tickets");
+        setTickets(response.data);
+        setMyTickets(response.data.filter((item) => item.status === "Moved to Admin"));
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+      }
     };
+
+    fetchTickets();
+  }, []);
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const response = await axios.get("http://localhost:7000/admin");
+        setAdmin(response.data[0]);
+      } catch (error) {
+        console.error("Error fetching admin data:", error);
+      }
+    };
+
+    fetchAdminData();
+  }, []);
+
+  const handleLogout = () => {
+    alert("Logging out!");
+    localStorage.removeItem("LoggedinAdmin");
+    navigate("/");
+  };
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setAdmin((prevAdmin) => ({ ...prevAdmin, [name]: value }));
+    validateField(name, value);
+  };
+
+  const validateField = (name, value) => {
+    let errors = { ...error };
+
+    if (name === "name") {
+      errors.name = value.trim() === "" ? "Name cannot be empty." : "";
+    } else if (name === "email") {
+      if (value.trim() === "") {
+        errors.email = "Email cannot be empty.";
+      } else if (!emailRegex.test(value)) {
+        errors.email = "Enter a valid email address.";
+      } else {
+        errors.email = "";
+      }
+    }
+
     setError(errors);
   };
 
-  const profilechanged = (event)=>{
+  const handleProfileSubmit = async (event) => {
     event.preventDefault();
-    if (Validation(admins)){
-      axios.post("http://localhost:7000/admin",admins)
-      .then(response=>{
-        console.log(response);
-      })
-      .catch(error=>{
-        console.error(error);
-      })
-    };
+    if (validateForm()) {
+      try {
+        await axios.post("http://localhost:7000/admin", admin);
+        alert("Profile updated successfully.");
+      } catch (error) {
+        console.error("Error updating profile:", error);
+      }
+    }
   };
 
-  const Validation = () =>{
-    var isValid = true;
-    const errors ={head:'',name:'',email:''};
-    if (admins.name === '') {
-      errors.name = 'Enter the new name';
+  const validateForm = () => {
+    let isValid = true;
+    const errors = {};
+
+    if (admin.name.trim() === "") {
+      errors.name = "Name cannot be empty.";
       isValid = false;
-    } else {
-      errors.name = '';
-      isValid = true;
     }
-    if (admins.email === '') {
-      errors.email = 'Enter the new email';
+
+    if (admin.email.trim() === "") {
+      errors.email = "Email cannot be empty.";
       isValid = false;
-    } else if (!emailRegex.test(admins.email)) {
-      errors.email = 'Enter the proper email';
+    } else if (!emailRegex.test(admin.email)) {
+      errors.email = "Enter a valid email address.";
       isValid = false;
-    } else {
-      errors.email = ''
-      isValid = true;
     }
+
     setError(errors);
     return isValid;
   };
 
-  const Admintickets=()=>{
-    navigate('/Admintickets');
+  const handleAcceptTicket = async (id) => {
+    try {
+      await axios.post("http://localhost:7000/admintickets", { id });
+      alert("Ticket accepted successfully.");
+    } catch (error) {
+      console.error("Error accepting ticket:", error);
+    }
   };
 
-  const AdminRegisters = ()=>{
-    navigate('/Adminregisters')
-  };
-
-  const myticketpage = (id) =>{
-    axios.post('http://localhost:7000/admintickets',{id})
-    .then(response=>{
-      console.log(response);
-    })
-    .catch(error=>{
-      console.error(error);
-    })
-  };
-
-  return(
+  return (
     <div className="App">
+      {/* Header Section */}
       <div className="container-fluid py-3 bg-dark text-light">
-        <div className="row">
+        <div className="row align-items-center">
           <div className="col-2">
-            <span>
-              <img src={logo} height={50} width={50} className="rounded " alt="Logo"/>
-            </span>
+            <img src={logo} height={50} width={50} alt="Logo" className="rounded" />
           </div>
           <h2 className="col-8 text-center">OPEN TICKETS</h2>
         </div>
       </div>
-      <header className ="container-fluid bg-dark text-light pb-2 header">
-        <h5 className="row justify-content-center" >Hello Admin!</h5>
-        <h6 className="row justify-content-center" >Welcome to the Home page of Admin!</h6>
+
+      {/* Welcome Section */}
+      <header className="container-fluid bg-dark text-light pb-2">
+        <h5 className="text-center">Hello Admin!</h5>
+        <h6 className="text-center">Welcome to the Admin Home Page!</h6>
         <div className="text-end">
-          <button  className="btn btn-sm btn-info" data-bs-toggle="offcanvas" data-bs-target="#settings" aria-controls="settings">Profile settings</button>
-          <button className="btn btn-sm btn-info ms-2" type="button" onClick={Admintickets}>mytickets</button>
-          <button className="btn btn-sm btn-info ms-2" type="button" onClick={AdminRegisters}>Registers</button>
+          <button className="btn btn-sm btn-info" data-bs-toggle="offcanvas" data-bs-target="#settings" aria-controls="settings">
+            Profile Settings
+          </button>
+          <button className="btn btn-sm btn-info ms-2" onClick={() => navigate("/Admintickets")}>My Tickets</button>
+          <button className="btn btn-sm btn-info ms-2" onClick={() => navigate("/Adminregisters")}>Registers</button>
         </div>
       </header>
-      <div className="offcanvas offcanvas-start" tabindex="-1" id="settings" aria-labelledby="settings">
+
+      {/* Profile Settings Offcanvas */}
+      <div className="offcanvas offcanvas-start" tabIndex="-1" id="settings">
         <div className="offcanvas-header">
-          <h5 className="offcanvas-title" id="settings">Profile settings</h5>
-          <button type="button" className="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+          <h5 className="offcanvas-title">Profile Settings</h5>
+          <button type="button" className="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">
-          <div>
-            This Slide helps Admin to Edit thier profile and Logout
-          </div>
-          <div className="card m-2 border border-4 border-info">
-            <h4 className="card-title p-2">Admin Profile:</h4>
+        <div className="offcanvas-body">
+          <div className="card border border-info">
             <div className="card-body text-center">
-              <span>
-                <img src={adminpic} width="200" height="200" alt ="images" className ="rounded rounded-circle"/>
-              </span>
-              <div className="pt-2 text-start">
-                <p className="border border-info bg-light ps-2">Admin Name:- {admins.name}</p>
-                <p className="border border-info bg-light ps-2">Admin Mail:- {admins.email}</p>
-              </div>
-              <div>
-                <button type="button" className="btn btn-sm  btn-info m-3" href="#adminprofile"  data-bs-toggle = "collapse"  data-bs-target ="#adminprofile">Profile</button>
-                <button className="btn btn-danger btn-sm m-3" type="button" onClick={Logout}>Logout</button>
-              </div>
-              <div className="container collapse"  aria-hidden="true" id="adminprofile">
-                <form className="form-control text-start border border-2 border-info" onSubmit={profilechanged}>
-                  <h5>Profile Editor:</h5>
-                  <label className="form-label">Change name:</label>
-                  <input type="text" name="name" className="form-control border border-info" onChange={profilechange}/>
-                  <p className="text-danger">{error.name}</p>
-                  <label className="form-label">Change email:</label>
-                  <input type="text" name="email" className="form-control border border-info" onChange={profilechange}/>
-                  <p className="text-danger">{error.email}</p>
-                  <button className="btn btn-sm btn-success mt-2 " type="submit" >Change Profile</button>
+              <img src={adminpic} width="150" height="150" alt="Admin" className="rounded-circle" />
+              <p className="mt-2">Name: {admin.name}</p>
+              <p>Email: {admin.email}</p>
+              <button
+                className="btn btn-info btn-sm mt-3"
+                data-bs-toggle="collapse"
+                data-bs-target="#editProfile"
+              >
+                Edit Profile
+              </button>
+              <button className="btn btn-danger btn-sm mt-3" onClick={handleLogout}>Logout</button>
+              <div id="editProfile" className="collapse mt-3">
+                <form onSubmit={handleProfileSubmit}>
+                  <div className="mb-3">
+                    <label className="form-label">Change Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="form-control"
+                      value={admin.name}
+                      onChange={handleInputChange}
+                    />
+                    <small className="text-danger">{error.name}</small>
+                  </div>
+                  <div className="mb-3">
+                    <label className="form-label">Change Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      className="form-control"
+                      value={admin.email}
+                      onChange={handleInputChange}
+                    />
+                    <small className="text-danger">{error.email}</small>
+                  </div>
+                  <button type="submit" className="btn btn-success">Save Changes</button>
                 </form>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="container ">
+
+      {/* Tickets Section */}
+      <div className="container mt-4">
         <div className="row">
-          <div className="col mb-4">
-            <h5 className="p-2 mt-3">Tickets Raised</h5>
-            <table className="table table-light m-3 text-center border border-4 border-info">
+          {/* Raised Tickets */}
+          <div className="col-md-6">
+            <h5>Tickets Raised</h5>
+            <table className="table table-bordered">
               <thead>
-                <th scope="col">Ticket Number</th>
-                <th scope="col">Complaint</th>
-                <th scope="col">Status</th>
+                <tr>
+                  <th>Ticket Number</th>
+                  <th>Complaint</th>
+                  <th>Status</th>
+                </tr>
               </thead>
               <tbody>
-                {tickets.map(items=>
-                  <tr className="border border-info">
-                    <th key={items.id} scope="row">{items.id}</th>
-                    <td>{items.complaint}</td>
-                    <td>{items.status || "Ticket raised"}</td>
+                {tickets.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.complaint}</td>
+                    <td>{item.status || "Pending"}</td>
                   </tr>
-                )}
-                </tbody>
+                ))}
+              </tbody>
             </table>
           </div>
-          <div className="col">
-            <h5 className="p-2 mt-3">Tickets Transfered</h5>
-            <table className="table table-light m-3 text-center border border-4 border-info">
+
+          {/* Transferred Tickets */}
+          <div className="col-md-6">
+            <h5>Transferred Tickets</h5>
+            <table className="table table-bordered">
               <thead>
-                <th scope="col">Ticket Number</th>
-                <th scope="col">Complaint</th>
-                <th scope="col">Option</th>
+                <tr>
+                  <th>Ticket Number</th>
+                  <th>Complaint</th>
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-                {mytickets.map(item=>
-                  <tr className="border border-info">
-                  <th scope="row" key={item.id}>{item.id}</th>
-                  <td>{item.complaint}</td>
-                  <td>
-                    <button className="btn btn-sm btn-success m-1" onClick={()=>{myticketpage(item.id)}}>Accept</button>
-                    <button className="btn btn-sm btn-danger m-1">Reject</button>
-                  </td>
-                </tr>
-                )}
+                {myTickets.map((item) => (
+                  <tr key={item.id}>
+                    <td>{item.id}</td>
+                    <td>{item.complaint}</td>
+                    <td>
+                      <button className="btn btn-success btn-sm me-2" onClick={() => handleAcceptTicket(item.id)}>Accept</button>
+                      <button className="btn btn-danger btn-sm">Reject</button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
       </div>
-      <div className="p-4 container-fluid bg-dark text-light">
-        <p className="text-center">@2024 creater</p>
-      </div>
+
+      {/* Footer */}
+      <footer className="bg-dark text-light text-center py-3">
+        <p>&copy; 2024 Open Tickets</p>
+      </footer>
     </div>
   )
 }
