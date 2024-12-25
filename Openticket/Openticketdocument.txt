@@ -1,0 +1,17 @@
+OpenTickets (project title):
+
+what is ticket ?
+An IT ticket is a request for information technology (IT) services. Tickets are generally created by users who need help with computer hardware, software, networking, or other IT issues.
+
+Requirements:
+
+3 roles need to bes used
+
+1.Administrator
+2.Employee
+3.Users
+
+according to the roles the website pages will be updated.
+
+Needs:- database,server,frontend
+  
