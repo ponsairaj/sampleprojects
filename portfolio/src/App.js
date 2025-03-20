@@ -8,7 +8,7 @@ import About from "./Components/About";
 import Footer from "./Components/Footer";
 
 
-function App() {
+export default function App() {
   return (
     <Router>
       <Navbar />
@@ -21,5 +21,5 @@ function App() {
       <Footer />
     </Router>
   );
-}
-export default App;
+};
+  
